@@ -165,7 +165,7 @@ class acf_field_viet_nam_address extends acf_field {
         $enable_district = isset($field['enable_district']) ? intval($field['enable_district']) : 0;
         $enable_village = isset($field['enable_village']) ? intval($field['enable_village']) : 0;
         $required = isset($field['required']) ? intval($field['required']) : 0;
-        $city_value = isset($field['value']['city']) ? sprintf("%02d", intval($field['value']['city'])) : '';
+        $city_value = isset($field['value']['city']) ? wc_clean(wp_unslash($field['value']['city'])) : '';
         $district_value = isset($field['value']['district']) ? sprintf("%03d", intval($field['value']['district'])) : '';
         $village_value = isset($field['value']['village']) ? sprintf("%05d", intval($field['value']['village'])) : '';
 
