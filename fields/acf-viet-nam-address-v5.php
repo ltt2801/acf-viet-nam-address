@@ -9,8 +9,8 @@ if( !class_exists('acf_field_viet_nam_address') ) :
 
 
 class acf_field_viet_nam_address extends acf_field {
-	
-	
+
+
 	/*
 	*  __construct
 	*
@@ -23,65 +23,65 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	n/a
 	*  @return	n/a
 	*/
-	
+
 	function __construct( $settings ) {
-		
+
 		/*
 		*  name (string) Single word, no spaces. Underscores allowed
 		*/
-		
+
 		$this->name = 'viet-nam-address';
-		
-		
+
+
 		/*
 		*  label (string) Multiple words, can include spaces, visible when selecting a field type
 		*/
-		
+
 		$this->label = __('Viet Nam Address', 'acf-viet-nam-address');
-		
-		
+
+
 		/*
 		*  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
 		*/
-		
+
 		$this->category = 'basic';
-		
-		
+
+
 		/*
 		*  defaults (array) Array of default settings which are merged into the field object. These are used later in settings
 		*/
-		
+
 		$this->defaults = array(
             'enable_district'	=> 1,
             'enable_village'	=> 1,
             'return_format'	    => 'array',
             'text_format'	    => '{{village}} - {{district}} - {{city}}',
 		);
-		
-		
+
+
 		/*
 		*  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
 		*  var message = acf._e('viet-nam-address', 'error');
 		*/
-		
+
 		$this->l10n = array(
 			'error'	=> __('Error! Please enter a higher value', 'acf-viet-nam-address'),
 		);
-		
-		
+
+
 		/*
 		*  settings (array) Store plugin settings (url, path, version) as a reference for later use with assets
 		*/
-		
+
 		$this->settings = $settings;
-		
-		
+
+
 		// do not delete!
     	parent::__construct();
-    	
+
 	}
-	
-	
+
+
 	/*
 	*  render_field_settings()
 	*
@@ -94,9 +94,9 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the $field being edited
 	*  @return	n/a
 	*/
-	
+
 	function render_field_settings( $field ) {
-		
+
 		/*
 		*  acf_render_field_setting
 		*
@@ -142,9 +142,9 @@ class acf_field_viet_nam_address extends acf_field {
             'name'			=> 'text_format',
         ));
 	}
-	
-	
-	
+
+
+
 	/*
 	*  render_field()
 	*
@@ -159,7 +159,7 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the $field being edited
 	*  @return	n/a
 	*/
-	
+
 	function render_field( $field ) {
 	    $enable_city = 1;
         $enable_district = isset($field['enable_district']) ? intval($field['enable_district']) : 0;
@@ -314,7 +314,7 @@ class acf_field_viet_nam_address extends acf_field {
 
 
         // register & include JS
-        wp_register_script( 'acf-vietnam-address', "{$url}assets/js/input.js", array('acf-input'), $version );
+        wp_register_script( 'acf-vietnam-address', "{$url}assets/js/input.js", array('acf-input', 'jquery'), $version );
         $php_array = array(
             'admin_ajax'		=>	admin_url( 'admin-ajax.php'),
             'home_url'			=>	home_url(),
@@ -330,7 +330,7 @@ class acf_field_viet_nam_address extends acf_field {
 
 
     }
-	
+
 	/*
 	*  input_admin_head()
 	*
@@ -346,21 +346,21 @@ class acf_field_viet_nam_address extends acf_field {
 	*/
 
 	/*
-		
+
 	function input_admin_head() {
-	
-		
-		
+
+
+
 	}
-	
+
 	*/
-	
-	
+
+
 	/*
    	*  input_form_data()
    	*
    	*  This function is called once on the 'input' page between the head and footer
-   	*  There are 2 situations where ACF did not load during the 'acf/input_admin_enqueue_scripts' and 
+   	*  There are 2 situations where ACF did not load during the 'acf/input_admin_enqueue_scripts' and
    	*  'acf/input_admin_head' actions because ACF did not know it was going to be used. These situations are
    	*  seen on comments / user edit forms on the front end. This function will always be called, and includes
    	*  $args that related to the current screen such as $args['post_id']
@@ -372,18 +372,18 @@ class acf_field_viet_nam_address extends acf_field {
    	*  @param	$args (array)
    	*  @return	n/a
    	*/
-   	
+
    	/*
-   	
+
    	function input_form_data( $args ) {
-	   	
-		
-	
+
+
+
    	}
-   	
+
    	*/
-	
-	
+
+
 	/*
 	*  input_admin_footer()
 	*
@@ -399,16 +399,16 @@ class acf_field_viet_nam_address extends acf_field {
 	*/
 
 	/*
-		
+
 	function input_admin_footer() {
-	
-		
-		
+
+
+
 	}
-	
+
 	*/
 
-	
+
 	/*
 	*  field_group_admin_head()
 	*
@@ -424,11 +424,11 @@ class acf_field_viet_nam_address extends acf_field {
 	*/
 
 	/*
-	
+
 	function field_group_admin_head() {
-	
+
 	}
-	
+
 	*/
 
 
@@ -446,18 +446,18 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$value
 	*/
-	
+
 	/*
-	
+
 	function load_value( $value, $post_id, $field ) {
-		
+
 		return $value;
-		
+
 	}
-	
+
 	*/
-	
-	
+
+
 	/*
 	*  update_value()
 	*
@@ -472,18 +472,18 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$value
 	*/
-	
+
 	/*
-	
+
 	function update_value( $value, $post_id, $field ) {
-		
+
 		return $value;
-		
+
 	}
-	
+
 	*/
-	
-	
+
+
 	/*
 	*  format_value()
 	*
@@ -499,7 +499,7 @@ class acf_field_viet_nam_address extends acf_field {
 	*
 	*  @return	$value (mixed) the modified value
 	*/
-		
+
 	function format_value( $value, $post_id, $field ) {
 		if( empty($value) || !is_array($value)) {
 			return false;
@@ -552,7 +552,7 @@ class acf_field_viet_nam_address extends acf_field {
 	        $valid = true;
         }
 		return $valid;
-		
+
 	}
 	/*
 	*  delete_value()
@@ -568,18 +568,18 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$key (string) the $meta_key which the value was deleted
 	*  @return	n/a
 	*/
-	
+
 	/*
-	
+
 	function delete_value( $post_id, $key ) {
-		
-		
-		
+
+
+
 	}
-	
+
 	*/
-	
-	
+
+
 	/*
 	*  load_field()
 	*
@@ -587,23 +587,23 @@ class acf_field_viet_nam_address extends acf_field {
 	*
 	*  @type	filter
 	*  @date	23/01/2013
-	*  @since	3.6.0	
+	*  @since	3.6.0
 	*
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$field
 	*/
-	
+
 	/*
-	
+
 	function load_field( $field ) {
-		
+
 		return $field;
-		
-	}	
-	
+
+	}
+
 	*/
-	
-	
+
+
 	/*
 	*  update_field()
 	*
@@ -616,18 +616,18 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$field
 	*/
-	
+
 	/*
-	
+
 	function update_field( $field ) {
-		
+
 		return $field;
-		
-	}	
-	
+
+	}
+
 	*/
-	
-	
+
+
 	/*
 	*  delete_field()
 	*
@@ -640,18 +640,18 @@ class acf_field_viet_nam_address extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	n/a
 	*/
-	
+
 	/*
-	
+
 	function delete_field( $field ) {
-		
-		
-		
-	}	
-	
+
+
+
+	}
+
 	*/
-	
-	
+
+
 }
 
 

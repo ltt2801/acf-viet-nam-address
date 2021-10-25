@@ -1,7 +1,7 @@
 (function($){
 	var loading_billing = false;
 	function initialize_field( $el ) {
-		
+
 		//$el.doStuff();
 
         if ( $el.parent('.row-clone').length === 0 && $el.parents('.clones').length === 0 ) {
@@ -14,17 +14,18 @@
             });
         }
 
-        $( 'select.acf_viet_nam_select2.acf_vietnam_city' ).on( 'change select2-selecting', function( object ) {
-            update_city_address( this, object.val );
+        $( 'select.acf_viet_nam_select2.acf_vietnam_city' ).on( 'select2:select', function( object ) {
+            update_city_address( this, object.params.data.id );
         });
 
-        $( 'select.acf_viet_nam_select2.acf_vietnam_district' ).on( 'change select2-selecting', function( object ) {
-            acf_vietnam_district( this, object.val );
+        $( 'select.acf_viet_nam_select2.acf_vietnam_district' ).on( 'select2:select', function( object ) {
+            acf_vietnam_district( this, object.params.data.id );
         });
-		
+
 	}
 
     function update_city_address( element, selected ) {
+        console.log(selected);
         var thisParent = $(element).parents('.acf-input'),
             matp = selected;
         var district = thisParent.find('select.acf_vietnam_district');
@@ -110,31 +111,31 @@
 	if( typeof acf.add_action !== 'undefined' ) {
 
 		acf.add_action('ready append', function( $el ){
-			
+
 			// search $el for fields of type 'viet-nam-address'
 			acf.get_fields({ type : 'viet-nam-address'}, $el).each(function(){
-				
+
 				initialize_field( $(this) );
-				
+
 			});
-			
+
 		});
-		
-		
+
+
 	} else {
 
-		
+
 		$(document).on('acf/setup_fields', function(e, postbox){
-			
+
 			$(postbox).find('.field[data-field_type="viet-nam-address"]').each(function(){
-				
+
 				initialize_field( $(this) );
-				
+
 			});
-		
+
 		});
-	
-	
+
+
 	}
 
 
