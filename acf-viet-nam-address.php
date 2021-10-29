@@ -4,7 +4,7 @@
 Plugin Name: ACF: Viet Nam Address
 Plugin URI: https://github.com/ltt2801/acf-viet-nam-address
 Description: Thêm lựa chọn tỉnh/thành phố; quận/huyện; xã/phường/thị trấn vào ACF (Advanced Custom Fields)
-Version: 1.0.1
+Version: 1.0.2
 Author: ltt2801
 Author URI: https://github.com/ltt2801
 License: GPLv2 or later
