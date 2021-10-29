@@ -133,7 +133,7 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
     function get_name_city($id = '')
     {
       $tinh_thanhpho = $this->get_all_cities();
-      $id_tinh = sprintf("%02d", intval($id));
+      $id_tinh = wc_clean(wp_unslash($id));
       $tinh_thanhpho = (isset($tinh_thanhpho[$id_tinh])) ? $tinh_thanhpho[$id_tinh] : '';
       return $tinh_thanhpho;
     }
