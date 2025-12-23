@@ -72,7 +72,7 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
     {
       if (!$matp) return false;
       $quan_huyen = $this->get_all_district();
-      $matp = wc_clean(wp_unslash($matp));
+      $matp = sanitize_text_field(wp_unslash($matp));
       $result = $this->search_in_array($quan_huyen, 'matp', $matp);
       usort($result, array($this, 'natorder'));
       return $result;
@@ -113,10 +113,10 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
 
     function load_diagioihanhchinh_func()
     {
-      if (!wp_verify_nonce($_REQUEST['nonce'], "acf_vn_nonce")) {
-        wp_send_json_error('hack');
+      if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], "acf_vn_nonce")) {
+        wp_send_json_error('invalid_nonce');
       }
-      $matp = isset($_POST['matp']) ? wc_clean(wp_unslash($_POST['matp'])) : '';
+      $matp = isset($_POST['matp']) ? sanitize_text_field(wp_unslash($_POST['matp'])) : '';
       $maqh = isset($_POST['maqh']) ? intval($_POST['maqh']) : '';
       if ($matp) {
         $result = $this->get_list_district($matp);
@@ -133,7 +133,7 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
     function get_name_city($id = '')
     {
       $tinh_thanhpho = $this->get_all_cities();
-      $id_tinh = wc_clean(wp_unslash($id));
+      $id_tinh = sanitize_text_field(wp_unslash($id));
       $tinh_thanhpho = (isset($tinh_thanhpho[$id_tinh])) ? $tinh_thanhpho[$id_tinh] : '';
       return $tinh_thanhpho;
     }

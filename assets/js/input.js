@@ -25,7 +25,6 @@
 	}
 
     function update_city_address( element, selected ) {
-        console.log(selected);
         var thisParent = $(element).parents('.acf-input'),
             matp = selected;
         var district = thisParent.find('select.acf_vietnam_district');
