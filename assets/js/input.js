@@ -1,5 +1,6 @@
 (function($){
 	var loading_billing = false;
+
 	function initialize_field( $el ) {
 
 		//$el.doStuff();
@@ -29,6 +30,8 @@
             matp = selected;
         var district = thisParent.find('select.acf_vietnam_district');
         var village = thisParent.find('select.acf_vietnam_village');
+        var enable_new_admin_units = $(element).data('enable-new-admin-units') || 0;
+
         if(matp == ''){
             district.html('').select2({
                 width : '100%',
@@ -44,26 +47,45 @@
                 type : "post",
                 dataType : "json",
                 url : devvn_acf_vn.admin_ajax,
-                data : {action: "load_diagioihanhchinh", matp : matp, nonce : devvn_acf_vn.none_acfvn},
+                data : {action: "load_diagioihanhchinh", matp : matp, nonce : devvn_acf_vn.none_acfvn, enable_new_admin_units: enable_new_admin_units},
                 context: this,
                 success: function(response) {
-                    district.html('').select2({
-                        width : '100%',
-                        placeholder: district.data('placeholder'),
-                    });
-                    village.html('').select2({
-                        width : '100%',
-                        placeholder: village.data('placeholder'),
-                    });
-                    if(response.success) {
-                        var listQH = response.data;
-                        var newState = new Option('', '');
-                        district.append(newState);
-                        $.each(listQH,function(index,value){
-                            var newState = new Option(value.name, value.maqh);
-                            district.append(newState);
+                    if(enable_new_admin_units) {
+                        // Nếu bật đơn vị hành chính mới, cập nhật village thay vì district
+                        village.html('').select2({
+                            width : '100%',
+                            placeholder: village.data('placeholder'),
                         });
-                        loading_billing = false;
+                        if(response.success) {
+                            var listVillage = response.data;
+                            var newState = new Option('', '');
+                            village.append(newState);
+                            $.each(listVillage,function(index,value){
+                                var newState = new Option(value.name, value.ward_id);
+                                village.append(newState);
+                            });
+                            loading_billing = false;
+                        }
+                    } else {
+                        // Logic cũ cho đơn vị hành chính cũ
+                        district.html('').select2({
+                            width : '100%',
+                            placeholder: district.data('placeholder'),
+                        });
+                        village.html('').select2({
+                            width : '100%',
+                            placeholder: village.data('placeholder'),
+                        });
+                        if(response.success) {
+                            var listQH = response.data;
+                            var newState = new Option('', '');
+                            district.append(newState);
+                            $.each(listQH,function(index,value){
+                                var newState = new Option(value.name, value.maqh);
+                                district.append(newState);
+                            });
+                            loading_billing = false;
+                        }
                     }
                 }
             });
