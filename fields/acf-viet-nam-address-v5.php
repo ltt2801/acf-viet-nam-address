@@ -52,10 +52,12 @@ class acf_field_viet_nam_address extends acf_field {
 		*/
 
 		$this->defaults = array(
-            'enable_district'	=> 1,
-            'enable_village'	=> 1,
-            'return_format'	    => 'array',
-            'text_format'	    => '{{village}} - {{district}} - {{city}}',
+			'enable_district'					=> 1,
+			'enable_village'					=> 1,
+			'enable_new_admin_units' 	=> 0,
+			// 'use_search_support'		=> 0,
+			'return_format'	  				=> 'array',
+			'text_format'	   				 	=> '{{village}} - {{district}} - {{city}}',
 		);
 
 
@@ -107,40 +109,48 @@ class acf_field_viet_nam_address extends acf_field {
 		*  Please note that you must also have a matching $defaults value for the field name (font_size)
 		*/
 		acf_render_field_setting( $field, array(
-            'label'			=> __('Quận/huyện','acf-viet-nam-address'),
-            'instructions'	=> '',
-            'type'			=> 'true_false',
-            'name'			=> 'enable_district',
-            'ui'			=> 1,
-        ));
+				'label'					=> __('Hiện Quận/huyện (chỉ áp dụng đơn vị hành chính cũ)','acf-viet-nam-address'),
+				'instructions'	=> '',
+				'type'					=> 'true_false',
+				'name'					=> 'enable_district',
+				'ui'						=> 1,
+		));
 
-        acf_render_field_setting( $field, array(
-            'label'			=> __('Xã/phường/thị trấn','acf-viet-nam-address'),
-            'instructions'	=> '',
-            'type'			=> 'true_false',
-            'name'			=> 'enable_village',
-            'ui'			=> 1,
-        ));
+		acf_render_field_setting( $field, array(
+				'label'					=> __('Hiện Xã/phường/thị trấn (chỉ áp dụng đơn vị hành chính cũ)','acf-viet-nam-address'),
+				'instructions'	=> '',
+				'type'					=> 'true_false',
+				'name'					=> 'enable_village',
+				'ui'						=> 1,
+		));
 
-        acf_render_field_setting( $field, array(
-            'label'			=> __('Định dạng trả về','acf-viet-nam-address'),
-            'instructions'	=> '',
-            'type'			=> 'radio',
-            'name'			=> 'return_format',
-            'choices'		=> array(
-                'array'	    	=> __("Array(ID and Name)",'acf-viet-nam-address'),
-                'id'			=> __("ID",'acf-viet-nam-address'),
-                'text'			=> __("Địa chỉ",'acf-viet-nam-address'),
-            ),
-            'layout'	=>	'horizontal',
-        ));
+		acf_render_field_setting( $field, array(
+				'label'					=> __('Sử dụng Đơn vị hành chính mới','acf-viet-nam-address'),
+				'instructions'	=> '',
+				'type'					=> 'true_false',
+				'name'					=> 'enable_new_admin_units',
+				'ui'						=> 1,
+		));
 
-        acf_render_field_setting( $field, array(
-            'label'			=> __('Định dạng địa chỉ','acf-viet-nam-address'),
-            'instructions'	=> __('{{village}}: Xã phường <br />{{district}}: Quận/huyện <br />{{city}}: Tỉnh/thành phố','acf-viet-nam-address'),
-            'type'			=> 'text',
-            'name'			=> 'text_format',
-        ));
+		acf_render_field_setting( $field, array(
+				'label'					=> __('Định dạng trả về','acf-viet-nam-address'),
+				'instructions'	=> '',
+				'type'					=> 'radio',
+				'name'					=> 'return_format',
+				'choices'				=> array(
+					'array'	    	=> __("Array(ID and Name)",'acf-viet-nam-address'),
+					'id'					=> __("ID",'acf-viet-nam-address'),
+					'text'				=> __("Địa chỉ",'acf-viet-nam-address'),
+				),
+				'layout'	=>	'horizontal',
+		));
+
+		acf_render_field_setting( $field, array(
+				'label'					=> __('Định dạng địa chỉ','acf-viet-nam-address'),
+				'instructions'	=> __('{{village}}: Phường/xã <br />{{district}}: Quận/huyện <br />{{city}}: Tỉnh/thành phố','acf-viet-nam-address'),
+				'type'					=> 'text',
+				'name'					=> 'text_format',
+		));
 	}
 
 
@@ -162,67 +172,107 @@ class acf_field_viet_nam_address extends acf_field {
 
 	function render_field( $field ) {
 	    $enable_city = 1;
-        $enable_district = isset($field['enable_district']) ? intval($field['enable_district']) : 0;
-        $enable_village = isset($field['enable_village']) ? intval($field['enable_village']) : 0;
-        $required = isset($field['required']) ? intval($field['required']) : 0;
-        $city_value = isset($field['value']['city']) ? wc_clean(wp_unslash($field['value']['city'])) : '';
-        $district_value = isset($field['value']['district']) ? sprintf("%03d", intval($field['value']['district'])) : '';
-        $village_value = isset($field['value']['village']) ? sprintf("%05d", intval($field['value']['village'])) : '';
+			$enable_new_admin_units = isset($field['enable_new_admin_units']) ? intval($field['enable_new_admin_units']) : 0;
+			$enable_district = isset($field['enable_district']) ? intval($field['enable_district']) : 0;
+			$enable_village = isset($field['enable_village']) ? intval($field['enable_village']) : 0;
+			$required = isset($field['required']) ? intval($field['required']) : 0;
+			$city_value = isset($field['value']['city']) ? sanitize_text_field(wp_unslash($field['value']['city'])) : '';
+			$district_value = isset($field['value']['district']) ? sprintf("%03d", intval($field['value']['district'])) : '';
+			$village_value = isset($field['value']['village']) ? sprintf("%05d", intval($field['value']['village'])) : '';
 
-        $list_cities = new acf_plugin_viet_nam_address();
-        $cities = $list_cities->get_all_cities();
+			$list_cities = new acf_plugin_viet_nam_address();
+
+			if ($enable_new_admin_units):
+				$cities = $list_cities->get_all_new_cities();
 		?>
-        <div class="acf_vietnam_address acf-input">
-            <?php if($enable_city && is_array($cities) && $cities):?>
-                <div class="acf_vietnam_address_input">
-                <select name="<?php echo esc_attr($field['name'])?>[city]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_city" data-placeholder="<?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?>">
-                    <option value="" selected="selected"><?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?></option>
-                    <?php foreach ($cities as $k=>$v):?>
-                    <option value="<?php echo $k;?>" <?php selected($k, $city_value, true)?>><?php echo $v;?></option>
-                    <?php endforeach;?>
-                </select>
-                </div>
-                <?php if($enable_district):?>
-                    <div class="acf_vietnam_address_input">
-                    <select name="<?php echo esc_attr($field['name'])?>[district]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_district" data-placeholder="<?php _e('Chọn quận/huyện','acf-viet-nam-address')?>">
-                        <option value="" selected="selected"><?php _e('Chọn quận/huyện','acf-viet-nam-address')?></option>
-                        <?php
-                        if($district_value):
-                        $districts = $list_cities->get_list_district($city_value);
-                        foreach ($districts as $v){
-                            $maqh = (isset($v['maqh']))?$v['maqh']:'';
-                            $tenqh = (isset($v['name']))?$v['name']:'';
-                            ?>
-                                <option value="<?php echo $maqh;?>" <?php selected($district_value, $maqh, true)?>><?php echo $tenqh;?></option>
-                            <?php
-                        }
-                        endif;
-                        ?>
-                    </select>
-                    </div>
-                    <?php if($enable_village):?>
-                    <div class="acf_vietnam_address_input">
-                    <select name="<?php echo esc_attr($field['name'])?>[village]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_village" data-placeholder="<?php _e('Chọn xã/phường','acf-viet-nam-address')?>">
-                        <option value="" selected="selected"><?php _e('Chọn xã/phường','acf-viet-nam-address')?></option>
-                        <?php
-                        if($village_value):
-                            $villages = $list_cities->get_list_village($district_value);
-                            foreach ($villages as $v){
-                                $maqh = (isset($v['xaid']))?$v['xaid']:'';
-                                $tenqh = (isset($v['name']))?$v['name']:'';
-                                ?>
-                                <option value="<?php echo $maqh;?>" <?php selected($village_value, $maqh, true)?>><?php echo $tenqh;?></option>
-                                <?php
-                            }
-                        endif;
-                        ?>
-                    </select>
-                    </div>
-                    <?php endif;?>
-                <?php endif;?>
-            <?php endif;?>
-        </div>
+				<div class="acf_vietnam_address acf-input">
+					<?php if($enable_city && is_array($cities) && $cities):?>
+							<div class="acf_vietnam_address_input">
+							<select name="<?php echo esc_attr($field['name'])?>[city]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_city" data-placeholder="<?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?>" data-enable-new-admin-units="1">
+									<option value="" selected="selected"><?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?></option>
+									<?php foreach ($cities as $city):
+										$city_id = isset($city['city_id']) ? $city['city_id'] : '';
+										$city_name = isset($city['name']) ? $city['name'] : '';
+									?>
+									<option value="<?php echo $city_id;?>" <?php selected($city_id, $city_value, true)?>><?php echo $city_name;?></option>
+									<?php endforeach;?>
+							</select>
+							</div>
+							<div class="acf_vietnam_address_input">
+							<select name="<?php echo esc_attr($field['name'])?>[village]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_village" data-placeholder="<?php _e('Chọn phường/xã','acf-viet-nam-address')?>">
+									<option value="" selected="selected"><?php _e('Chọn phường/xã','acf-viet-nam-address')?></option>
+									<?php
+									if($village_value):
+											$villages = $list_cities->get_list_new_village($city_value);
+											foreach ($villages as $v){
+												$ward_id = (isset($v['ward_id']))?$v['ward_id']:'';
+												$name_village = (isset($v['name']))?$v['name']:'';
+												?>
+												<option value="<?php echo $ward_id;?>" <?php selected($village_value, $ward_id, true)?>><?php echo $name_village;?></option>
+												<?php
+											}
+									endif;
+									?>
+							</select>
+							</div>
+					<?php endif;?>
+			</div>
 		<?php
+			else:
+				$cities = $list_cities->get_all_cities();
+		?>
+			<div class="acf_vietnam_address acf-input">
+					<?php if($enable_city && is_array($cities) && $cities):?>
+							<div class="acf_vietnam_address_input">
+							<select name="<?php echo esc_attr($field['name'])?>[city]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_city" data-placeholder="<?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?>" data-enable-new-admin-units="0">
+									<option value="" selected="selected"><?php _e('Chọn tỉnh/thành phố','acf-viet-nam-address')?></option>
+									<?php foreach ($cities as $k=>$v):?>
+									<option value="<?php echo $k;?>" <?php selected($k, $city_value, true)?>><?php echo $v;?></option>
+									<?php endforeach;?>
+							</select>
+							</div>
+							<?php if($enable_district):?>
+									<div class="acf_vietnam_address_input">
+									<select name="<?php echo esc_attr($field['name'])?>[district]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_district" data-placeholder="<?php _e('Chọn quận/huyện','acf-viet-nam-address')?>">
+											<option value="" selected="selected"><?php _e('Chọn quận/huyện','acf-viet-nam-address')?></option>
+											<?php
+											if($district_value):
+											$districts = $list_cities->get_list_district($city_value);
+											foreach ($districts as $v){
+													$maqh = (isset($v['maqh']))?$v['maqh']:'';
+													$tenqh = (isset($v['name']))?$v['name']:'';
+													?>
+															<option value="<?php echo $maqh;?>" <?php selected($district_value, $maqh, true)?>><?php echo $tenqh;?></option>
+													<?php
+											}
+											endif;
+											?>
+									</select>
+									</div>
+									<?php if($enable_village):?>
+									<div class="acf_vietnam_address_input">
+									<select name="<?php echo esc_attr($field['name'])?>[village]" data-ui="1" class="acf_viet_nam_select2 acf_vietnam_village" data-placeholder="<?php _e('Chọn phường/xã','acf-viet-nam-address')?>">
+											<option value="" selected="selected"><?php _e('Chọn phường/xã','acf-viet-nam-address')?></option>
+											<?php
+											if($village_value):
+													$villages = $list_cities->get_list_village($district_value);
+													foreach ($villages as $v){
+															$maqh = (isset($v['xaid']))?$v['xaid']:'';
+															$tenqh = (isset($v['name']))?$v['name']:'';
+															?>
+															<option value="<?php echo $maqh;?>" <?php selected($village_value, $maqh, true)?>><?php echo $tenqh;?></option>
+															<?php
+													}
+											endif;
+											?>
+									</select>
+									</div>
+									<?php endif;?>
+							<?php endif;?>
+					<?php endif;?>
+			</div>
+		<?php
+			endif;
 	}
 
     function field_group_admin_enqueue_scripts() {
@@ -506,27 +556,27 @@ class acf_field_viet_nam_address extends acf_field {
 		}
 		$dghc = new acf_plugin_viet_nam_address();
 		$city       = (isset($value['city']))?$value['city']:'';
-        $district   = (isset($value['district']))?$value['district']:'';
-        $village    = (isset($value['village']))?$value['village']:'';
-        $nameCity       = $dghc->get_name_city($city);
-        $nameDistrict   = $dghc->get_name_district($district);
-        $nameVillage    = $dghc->get_name_village($village);
-        if( $field['return_format'] == 'array' ) {
-            $new_array = array();
-		    $new_array['city'] = array(
-                'id'    =>  $city,
-                'name'  =>  $nameCity
-            );
-		    $new_array['district'] = array(
-                'id'    =>  $district,
-                'name'  =>  $nameDistrict
-            );
-		    $new_array['village'] = array(
-                'id'    =>  $village,
-                'name'  =>  $nameVillage
-            );
-            $value = $new_array;
-		    return $value;
+			$district   = (isset($value['district']))?$value['district']:'';
+			$village    = (isset($value['village']))?$value['village']:'';
+			$nameCity       = $dghc->get_name_city($city);
+			$nameDistrict   = $dghc->get_name_district($district);
+			$nameVillage    = $dghc->get_name_village($village);
+			if( $field['return_format'] == 'array' ) {
+					$new_array = array();
+			$new_array['city'] = array(
+							'id'    =>  $city,
+							'name'  =>  $nameCity
+					);
+			$new_array['district'] = array(
+							'id'    =>  $district,
+							'name'  =>  $nameDistrict
+					);
+			$new_array['village'] = array(
+							'id'    =>  $village,
+							'name'  =>  $nameVillage
+					);
+					$value = $new_array;
+			return $value;
 		}elseif ($field['return_format'] == 'text'){
             $text_format = (isset($field['text_format']) && $field['text_format'])?$field['text_format']:$this->defaults['text_format'];
             $value = str_replace("{{city}}", $nameCity, $text_format);
@@ -546,7 +596,7 @@ class acf_field_viet_nam_address extends acf_field {
             } elseif ($value['district'] == '') {
                 $valid = __('Chọn quận/huyện', 'acf-viet-nam-address');
             } elseif ($value['village'] == '') {
-                $valid = __('Chọn xã/phường', 'acf-viet-nam-address');
+                $valid = __('Chọn phường/xã', 'acf-viet-nam-address');
             }
         }else{
 	        $valid = true;

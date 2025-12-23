@@ -3,8 +3,8 @@
 *****  Special Thanks to Le Van Toan *****
 Plugin Name: ACF: Viet Nam Address
 Plugin URI: https://github.com/ltt2801/acf-viet-nam-address
-Description: Thêm lựa chọn tỉnh/thành phố; quận/huyện; xã/phường/thị trấn vào ACF (Advanced Custom Fields)
-Version: 1.0.2
+Description: Thêm lựa chọn tỉnh/thành phố; quận/huyện; phường/xã/thị trấn vào ACF (Advanced Custom Fields)
+Version: 2.0.0
 Author: ltt2801
 Author URI: https://github.com/ltt2801
 License: GPLv2 or later
@@ -26,7 +26,7 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
 
       // vars
       $this->settings = array(
-        'version'    => '1.0.1',
+        'version'    => '2.0.0',
         'url'        => plugin_dir_url(__FILE__),
         'path'        => plugin_dir_path(__FILE__)
       );
@@ -52,19 +52,19 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
 
     function get_all_cities()
     {
-      include 'cities/tinh_thanhpho.php';
+      include 'cities/old/tinh_thanhpho.php';
       return $tinh_thanhpho;
     }
 
     function get_all_district()
     {
-      include 'cities/quan_huyen.php';
+      include 'cities/old/quan_huyen.php';
       return $quan_huyen;
     }
 
     function get_all_village()
     {
-      include 'cities/xa_phuong_thitran.php';
+      include 'cities/old/xa_phuong_thitran.php';
       return $xa_phuong_thitran;
     }
 
@@ -113,13 +113,21 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
 
     function load_diagioihanhchinh_func()
     {
-      if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], "acf_vn_nonce")) {
+      if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'acf_vn_nonce')) {
         wp_send_json_error('invalid_nonce');
       }
       $matp = isset($_POST['matp']) ? sanitize_text_field(wp_unslash($_POST['matp'])) : '';
       $maqh = isset($_POST['maqh']) ? intval($_POST['maqh']) : '';
+      $enable_new_admin_units = isset($_POST['enable_new_admin_units']) ? intval($_POST['enable_new_admin_units']) : 0;
+
       if ($matp) {
-        $result = $this->get_list_district($matp);
+        // Nếu enable_new_admin_units được bật, trả về danh sách village theo city_id
+        if ($enable_new_admin_units) {
+          $result = $this->get_list_new_village($matp);
+        } else {
+          // Nếu không, trả về danh sách district như bình thường
+          $result = $this->get_list_district($matp);
+        }
         wp_send_json_success($result);
       }
       if ($maqh) {
@@ -156,6 +164,47 @@ if (!class_exists('acf_plugin_viet_nam_address')) :
       $id_xa = sprintf("%05d", intval($id));
       if (is_array($xa_phuong_thitran) && !empty($xa_phuong_thitran)) {
         $name = $this->search_in_array($xa_phuong_thitran, 'xaid', $id_xa);
+        $name = isset($name[0]['name']) ? $name[0]['name'] : '';
+        return $name;
+      }
+      return false;
+    }
+
+    function get_all_new_cities()
+    {
+      include 'cities/new/tinh_thanhpho.php';
+      return $tinh_thanhpho;
+    }
+
+    function get_all_new_village()
+    {
+      include 'cities/new/phuong_xa.php';
+      return $phuong_xa;
+    }
+
+    function get_list_new_village($city_id = '')
+    {
+      if (!$city_id) return false;
+      $phuong_xa = $this->get_all_new_village();
+      $result = $this->search_in_array($phuong_xa, 'city_id', $city_id);
+      usort($result, array($this, 'natorder'));
+      return $result;
+    }
+
+    function get_name_new_city($id = '')
+    {
+      $tinh_thanhpho = $this->get_all_new_cities();
+      $id_tinh = sanitize_text_field(wp_unslash($id));
+      $tinh_thanhpho = (isset($tinh_thanhpho[$id_tinh])) ? $tinh_thanhpho[$id_tinh] : '';
+      return $tinh_thanhpho;
+    }
+
+    function get_name_new_village($id = '')
+    {
+      $phuong_xa = $this->get_all_new_village();
+      $id_xa = sprintf("%05d", intval($id));
+      if (is_array($phuong_xa) && !empty($phuong_xa)) {
+        $name = $this->search_in_array($phuong_xa, 'ward_id', $id_xa);
         $name = isset($name[0]['name']) ? $name[0]['name'] : '';
         return $name;
       }
