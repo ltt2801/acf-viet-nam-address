@@ -2,7 +2,7 @@
 
 Plugin thêm trường lựa chọn địa chỉ Việt Nam vào Advanced Custom Fields (ACF).
 
-*Chân thành cảm ơn đến **@Le Van Toan***
+*Chân thành cảm ơn đến **@Le Van Toan**, **@quangtam***
 
 ## ✨ Tính năng chính
 - Thêm field "Viet Nam Address" vào ACF.
